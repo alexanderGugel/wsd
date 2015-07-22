@@ -2,7 +2,7 @@
 
 > = **W**eb**S**ocket **D**ebugger
 
-[![Build Status](https://travis-ci.org/alexander/wsd.svg?branch=master)](https://travis-ci.org/alexanderGugel/wsd)
+[![Build Status](https://travis-ci.org/alexanderGugel/wsd.svg?branch=master)](https://travis-ci.org/alexanderGugel/wsd)
 
 ![Terminal Demo](https://cdn.rawgit.com/alexanderGugel/wsd/demo/demo.gif)
 
