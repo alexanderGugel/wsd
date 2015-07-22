@@ -30,7 +30,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&origin, "origin", "http://localhost/", "origin of Websocket client")
+	flag.StringVar(&origin, "origin", "http://localhost/", "origin of WebSocket client")
 	flag.StringVar(&url, "url", "ws://localhost:1337/ws", "WebSocket server address to connect to")
 	flag.StringVar(&protocol, "protocol", "", "WebSocket subprotocol")
 	flag.BoolVar(&displayHelp, "help", false, "Display help information about wsd")

@@ -18,7 +18,15 @@ $ go get github.com/alexanderGugel/wsd
 
 ## Usage
 
-Command-line usage.
+Command-line usage:
+
+```
+  -help=false: Display help information about wsd
+  -origin="http://localhost/": origin of WebSocket client
+  -protocol="": WebSocket subprotocol
+  -url="ws://localhost:1337/ws": WebSocket server address to connect to
+  -version=false: Display version number
+```
 
 ## Why?
 
