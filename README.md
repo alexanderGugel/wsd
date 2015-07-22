@@ -4,6 +4,8 @@
 
 [![Build Status](https://travis-ci.org/alexander/wsd.svg?branch=master)](https://travis-ci.org/alexanderGugel/wsd)
 
+![Terminal Demo](https://cdn.rawgit.com/alexanderGugel/wsd/demo/demo.gif)
+
 Simple command line utility for debugging WebSocket servers.
 
 ## Installation
