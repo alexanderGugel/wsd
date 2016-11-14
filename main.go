@@ -13,7 +13,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-// Current version number
+// Version is the current version.
 const Version = "0.0.0"
 
 var (
@@ -35,7 +35,7 @@ func init() {
 	flag.StringVar(&origin, "origin", "http://localhost/", "origin of WebSocket client")
 	flag.StringVar(&url, "url", "ws://localhost:1337/ws", "WebSocket server address to connect to")
 	flag.StringVar(&protocol, "protocol", "", "WebSocket subprotocol")
-	flag.BoolVar(&insecureSkipVerify, "insecureSkipVerify", false, "Skip tls certificate verify")
+	flag.BoolVar(&insecureSkipVerify, "insecureSkipVerify", false, "Skip TLS certificate verification")
 	flag.BoolVar(&displayHelp, "help", false, "Display help information about wsd")
 	flag.BoolVar(&displayVersion, "version", false, "Display version number")
 }
