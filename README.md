@@ -30,6 +30,8 @@ Usage of ./wsd:
       origin of WebSocket client (default "http://localhost/")
   -protocol string
       WebSocket subprotocol
+  -userAgent string
+      "User-Agent" header
   -url string
       WebSocket server address to connect to (default "ws://localhost:1337/ws")
   -version
