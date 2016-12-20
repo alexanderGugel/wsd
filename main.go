@@ -20,7 +20,7 @@ var (
 	origin             string
 	url                string
 	protocol           string
-	userAgent 	   string
+	userAgent          string
 	displayHelp        bool
 	displayVersion     bool
 	insecureSkipVerify bool
