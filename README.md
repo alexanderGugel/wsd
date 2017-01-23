@@ -33,7 +33,26 @@ Usage of ./wsd:
   -url string
       WebSocket server address to connect to (default "ws://localhost:1337/ws")
   -version
-      Display version number```
+      Display version number
+```
+
+### Piping
+
+One can piping multiples messages by breaking them with new lines  
+E.g.
+```
+echo 'a
+b' \
+| wsd -url="wss://echo.websocket.org"
+```
+results
+```
+> a
+< a
+> b
+< b
+```
+
 
 ## Why?
 

@@ -9,6 +9,8 @@ import (
 	"os"
 	"sync"
 
+	"strings"
+
 	"github.com/fatih/color"
 	"golang.org/x/net/websocket"
 )
@@ -23,14 +25,14 @@ var (
 	displayHelp        bool
 	displayVersion     bool
 	insecureSkipVerify bool
-	isPipe         bool
+	isPipe             bool
 	red                = color.New(color.FgRed).SprintFunc()
 	magenta            = color.New(color.FgMagenta).SprintFunc()
 	green              = color.New(color.FgGreen).SprintFunc()
 	yellow             = color.New(color.FgYellow).SprintFunc()
 	cyan               = color.New(color.FgCyan).SprintFunc()
 	wg                 sync.WaitGroup
-	wgReceive      sync.WaitGroup	
+	wgReceive          sync.WaitGroup
 )
 
 func init() {
@@ -165,6 +167,10 @@ func main() {
 	for scanner.Scan() {
 		text := scanner.Text()
 		if isPipe {
+			// Ignoring empty lines
+			if len(strings.Trim(text, "")) == 0 {
+				continue
+			}
 			fmt.Println(green(text))
 			wgReceive.Add(1)
 		}
@@ -176,5 +182,7 @@ func main() {
 		fmt.Print("> ")
 	}
 
-	wg.Wait()
+	if !isPipe {
+		wg.Wait()
+	}
 }
