@@ -9,6 +9,8 @@ import (
 	"os"
 	"sync"
 
+	"strings"
+
 	"github.com/fatih/color"
 	"golang.org/x/net/websocket"
 )
@@ -23,12 +25,14 @@ var (
 	displayHelp        bool
 	displayVersion     bool
 	insecureSkipVerify bool
+	isPipe             bool
 	red                = color.New(color.FgRed).SprintFunc()
 	magenta            = color.New(color.FgMagenta).SprintFunc()
 	green              = color.New(color.FgGreen).SprintFunc()
 	yellow             = color.New(color.FgYellow).SprintFunc()
 	cyan               = color.New(color.FgCyan).SprintFunc()
 	wg                 sync.WaitGroup
+	wgReceive          sync.WaitGroup
 )
 
 func init() {
@@ -65,6 +69,7 @@ func printErrors(errors <-chan error) {
 			os.Exit(0)
 		} else {
 			fmt.Printf("\rerr %v\n> ", red(err))
+			doneReceive()
 		}
 	}
 }
@@ -72,6 +77,7 @@ func printErrors(errors <-chan error) {
 func printReceivedMessages(in <-chan []byte) {
 	for msg := range in {
 		fmt.Printf("\r< %s\n> ", cyan(string(msg)))
+		doneReceive()
 	}
 }
 
@@ -81,6 +87,12 @@ func outLoop(ws *websocket.Conn, out <-chan []byte, errors chan<- error) {
 		if err != nil {
 			errors <- err
 		}
+	}
+}
+
+func doneReceive() {
+	if isPipe {
+		wgReceive.Done()
 	}
 }
 
@@ -143,13 +155,34 @@ func main() {
 	go printErrors(errors)
 	go outLoop(ws, out, errors)
 
+	fi, err := os.Stdin.Stat()
+	if err != nil {
+		panic(err)
+	}
+	isPipe = fi.Mode()&os.ModeNamedPipe != 0
+
 	scanner := bufio.NewScanner(os.Stdin)
 
 	fmt.Print("> ")
 	for scanner.Scan() {
-		out <- []byte(scanner.Text())
+		text := scanner.Text()
+		if isPipe {
+			// Ignoring empty lines
+			if len(strings.Trim(text, "")) == 0 {
+				continue
+			}
+			fmt.Println(green(text))
+			wgReceive.Add(1)
+		}
+		out <- []byte(text)
+		if isPipe {
+			wgReceive.Wait()
+			continue
+		}
 		fmt.Print("> ")
 	}
 
-	wg.Wait()
+	if !isPipe {
+		wg.Wait()
+	}
 }
