@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"io"
@@ -12,29 +13,31 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-// Current version number
-const Version = "0.0.0"
+// Version is the current version.
+const Version = "0.1.0"
 
 var (
-	origin         string
-	url            string
-	protocol       string
-	displayHelp    bool
-	displayVersion bool
+	origin             string
+	url                string
+	protocol           string
+	displayHelp        bool
+	displayVersion     bool
+	insecureSkipVerify bool
 	isPipe         bool
-	red            = color.New(color.FgRed).SprintFunc()
-	magenta        = color.New(color.FgMagenta).SprintFunc()
-	green          = color.New(color.FgGreen).SprintFunc()
-	yellow         = color.New(color.FgYellow).SprintFunc()
-	cyan           = color.New(color.FgCyan).SprintFunc()
-	wg             sync.WaitGroup
-	wgReceive      sync.WaitGroup
+	red                = color.New(color.FgRed).SprintFunc()
+	magenta            = color.New(color.FgMagenta).SprintFunc()
+	green              = color.New(color.FgGreen).SprintFunc()
+	yellow             = color.New(color.FgYellow).SprintFunc()
+	cyan               = color.New(color.FgCyan).SprintFunc()
+	wg                 sync.WaitGroup
+	wgReceive      sync.WaitGroup	
 )
 
 func init() {
 	flag.StringVar(&origin, "origin", "http://localhost/", "origin of WebSocket client")
 	flag.StringVar(&url, "url", "ws://localhost:1337/ws", "WebSocket server address to connect to")
 	flag.StringVar(&protocol, "protocol", "", "WebSocket subprotocol")
+	flag.BoolVar(&insecureSkipVerify, "insecureSkipVerify", false, "Skip TLS certificate verification")
 	flag.BoolVar(&displayHelp, "help", false, "Display help information about wsd")
 	flag.BoolVar(&displayVersion, "version", false, "Display version number")
 }
@@ -91,6 +94,20 @@ func doneReceive() {
 	}
 }
 
+func dial(url, protocol, origin string) (ws *websocket.Conn, err error) {
+	config, err := websocket.NewConfig(url, origin)
+	if err != nil {
+		return nil, err
+	}
+	if protocol != "" {
+		config.Protocol = []string{protocol}
+	}
+	config.TlsConfig = &tls.Config{
+		InsecureSkipVerify: insecureSkipVerify,
+	}
+	return websocket.DialConfig(config)
+}
+
 func main() {
 	flag.Parse()
 
@@ -105,7 +122,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	ws, err := websocket.Dial(url, protocol, origin)
+	ws, err := dial(url, protocol, origin)
 
 	if protocol != "" {
 		fmt.Printf("connecting to %s via %s from %s...\n", yellow(url), yellow(protocol), yellow(origin))

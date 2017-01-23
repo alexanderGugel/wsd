@@ -21,12 +21,19 @@ $ go get github.com/alexanderGugel/wsd
 Command-line usage:
 
 ```
-  -help=false: Display help information about wsd
-  -origin="http://localhost/": origin of WebSocket client
-  -protocol="": WebSocket subprotocol
-  -url="ws://localhost:1337/ws": WebSocket server address to connect to
-  -version=false: Display version number
-```
+Usage of ./wsd:
+  -help
+      Display help information about wsd
+  -insecureSkipVerify
+      Skip TLS certificate verification
+  -origin string
+      origin of WebSocket client (default "http://localhost/")
+  -protocol string
+      WebSocket subprotocol
+  -url string
+      WebSocket server address to connect to (default "ws://localhost:1337/ws")
+  -version
+      Display version number```
 
 ## Why?
 
