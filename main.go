@@ -20,6 +20,7 @@ var (
 	origin             string
 	url                string
 	protocol           string
+	userAgent          string
 	displayHelp        bool
 	displayVersion     bool
 	insecureSkipVerify bool
@@ -35,13 +36,14 @@ func init() {
 	flag.StringVar(&origin, "origin", "http://localhost/", "origin of WebSocket client")
 	flag.StringVar(&url, "url", "ws://localhost:1337/ws", "WebSocket server address to connect to")
 	flag.StringVar(&protocol, "protocol", "", "WebSocket subprotocol")
+	flag.StringVar(&userAgent, "userAgent", "", "User-Agent header")
 	flag.BoolVar(&insecureSkipVerify, "insecureSkipVerify", false, "Skip TLS certificate verification")
 	flag.BoolVar(&displayHelp, "help", false, "Display help information about wsd")
 	flag.BoolVar(&displayVersion, "version", false, "Display version number")
 }
 
 func inLoop(ws *websocket.Conn, errors chan<- error, in chan<- []byte) {
-	var msg = make([]byte, 512)
+	var msg = make([]byte, 1024)
 
 	for {
 		var n int
@@ -91,6 +93,9 @@ func dial(url, protocol, origin string) (ws *websocket.Conn, err error) {
 	}
 	if protocol != "" {
 		config.Protocol = []string{protocol}
+	}
+	if userAgent != "" {
+		config.Header.Add("User-Agent", userAgent)
 	}
 	config.TlsConfig = &tls.Config{
 		InsecureSkipVerify: insecureSkipVerify,
