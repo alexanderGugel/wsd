@@ -43,7 +43,7 @@ func init() {
 }
 
 func inLoop(ws *websocket.Conn, errors chan<- error, in chan<- []byte) {
-	var msg = make([]byte, 512)
+	var msg = make([]byte, 1024)
 
 	for {
 		var n int
