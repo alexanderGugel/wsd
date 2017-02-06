@@ -24,6 +24,9 @@ Command-line usage:
 Usage of ./wsd:
   -help
       Display help information about wsd
+  -bufSize
+      Inbound buffer size in bytes.
+      Increase it if size of innound message exceeds 1024 bytes.
   -insecureSkipVerify
       Skip TLS certificate verification
   -origin string
