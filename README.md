@@ -33,7 +33,8 @@ Usage of ./wsd:
   -url string
       WebSocket server address to connect to (default "ws://localhost:1337/ws")
   -version
-      Display version number```
+      Display version number
+```
 
 ## Why?
 
