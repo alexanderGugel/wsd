@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/fatih/color"
+	"github.com/mattn/go-isatty"
 	"golang.org/x/net/websocket"
 )
 
@@ -23,6 +24,8 @@ var (
 	displayHelp        bool
 	displayVersion     bool
 	insecureSkipVerify bool
+	stderrIsTty        bool
+	stdoutIsTty        bool
 	red                = color.New(color.FgRed).SprintFunc()
 	magenta            = color.New(color.FgMagenta).SprintFunc()
 	green              = color.New(color.FgGreen).SprintFunc()
@@ -38,6 +41,13 @@ func init() {
 	flag.BoolVar(&insecureSkipVerify, "insecureSkipVerify", false, "Skip TLS certificate verification")
 	flag.BoolVar(&displayHelp, "help", false, "Display help information about wsd")
 	flag.BoolVar(&displayVersion, "version", false, "Display version number")
+
+	stdoutIsTty = isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd())
+	stderrIsTty = isatty.IsTerminal(os.Stderr.Fd()) || isatty.IsCygwinTerminal(os.Stderr.Fd())
+	if ! (stderrIsTty && stdoutIsTty) {
+		color.NoColor = true
+	}
+
 }
 
 func inLoop(ws *websocket.Conn, errors chan<- error, in chan<- []byte) {
@@ -61,17 +71,21 @@ func inLoop(ws *websocket.Conn, errors chan<- error, in chan<- []byte) {
 func printErrors(errors <-chan error) {
 	for err := range errors {
 		if err == io.EOF {
-			fmt.Printf("\r✝ %v - connection closed by remote\n", magenta(err))
+			fmt.Fprintf(os.Stderr, "\r✝ %v - connection closed by remote\n", magenta(err))
 			os.Exit(0)
 		} else {
-			fmt.Printf("\rerr %v\n> ", red(err))
+			fmt.Fprintf(os.Stderr, "\rerr %v\n> ", red(err))
 		}
 	}
 }
 
 func printReceivedMessages(in <-chan []byte) {
 	for msg := range in {
-		fmt.Printf("\r< %s\n> ", cyan(string(msg)))
+		fmt.Fprintf(os.Stderr, "\r< ")
+		color.Set(color.FgCyan)
+		fmt.Fprintf(os.Stdout, "%s\n", msg)
+		color.Unset()
+		fmt.Fprintf(os.Stderr, "> ")
 	}
 }
 
@@ -115,9 +129,9 @@ func main() {
 	ws, err := dial(url, protocol, origin)
 
 	if protocol != "" {
-		fmt.Printf("connecting to %s via %s from %s...\n", yellow(url), yellow(protocol), yellow(origin))
+		fmt.Fprintf(os.Stderr, "connecting to %s via %s from %s...\n", yellow(url), yellow(protocol), yellow(origin))
 	} else {
-		fmt.Printf("connecting to %s from %s...\n", yellow(url), yellow(origin))
+		fmt.Fprintf(os.Stderr, "connecting to %s from %s...\n", yellow(url), yellow(origin))
 	}
 
 	defer ws.Close()
@@ -126,7 +140,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("successfully connected to %s\n\n", green(url))
+	fmt.Fprintf(os.Stderr, "successfully connected to %s\n\n", green(url))
 
 	wg.Add(3)
 
@@ -145,10 +159,10 @@ func main() {
 
 	scanner := bufio.NewScanner(os.Stdin)
 
-	fmt.Print("> ")
+	fmt.Fprint(os.Stderr, "> ")
 	for scanner.Scan() {
 		out <- []byte(scanner.Text())
-		fmt.Print("> ")
+		fmt.Fprint(os.Stderr, "> ")
 	}
 
 	wg.Wait()
